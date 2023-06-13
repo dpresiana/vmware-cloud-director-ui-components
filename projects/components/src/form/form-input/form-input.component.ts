@@ -58,6 +58,11 @@ export class FormInputComponent extends BaseFormControl<string | number | Date> 
     @Input() type = 'text';
 
     /**
+     * If the input 'type' is number and the valid value should be only integer (floating number should not be accepted) 
+     */
+    @Input() allowOnlyIntegers = false;
+
+    /**
      * Input 'size' field.
      */
     @Input() size: number = null;
@@ -161,10 +166,19 @@ export class FormInputComponent extends BaseFormControl<string | number | Date> 
     }
 
     /**
-     * Default validator that looks at the input's [validity](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)
+     * Validate the number input based on default validator that looks at the input's validity and the allowOnlyIntegers component input
      */
     validateNumber(): ValidationErrors {
-        return this.textInput?.nativeElement.validity.badInput ? { 'vcd.cc.bad.input': true } : null;
+        /**
+        * Default validator that looks at the input's [validity](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)
+        */
+        let isNotValid = this.textInput?.nativeElement.validity.badInput;
+        
+        if(this.allowOnlyIntegers) {
+            isNotValid = isNotValid || !Number.isInteger(Number(this.textInput?.nativeElement.value));
+        }
+        
+        return isNotValid ? { 'vcd.cc.bad.input': true } : null;
     }
 }
 
